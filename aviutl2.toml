@@ -45,5 +45,6 @@ license = { type = "MIT", template = false, text = { type = "file", path = "./LI
 
 [release]
 prebuild = ["cargo about generate ./about.hbs -o ./release/package.txt"]
+package_template = "./release/package.txt"
 package_information = "{name} v{version} / 編集中にDiscordのアクティビティを更新するプラグイン"
 
