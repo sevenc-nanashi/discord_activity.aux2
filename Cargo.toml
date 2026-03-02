@@ -1,0 +1,17 @@
+[package]
+name = "discord_activity-aux2"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "discord_activity_aux2"
+crate-type = ["cdylib"]
+
+[dependencies]
+aviutl2 = "0.20.2"
+discord-rich-presence = "1.1.0"
+native-dialog = "0.9.6"
+process_path = "0.1.4"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+time = "0.3.47"
