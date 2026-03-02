@@ -19,6 +19,7 @@ static CONFIG_PATH: std::sync::LazyLock<std::path::PathBuf> = std::sync::LazyLoc
 
 #[aviutl2::plugin(GenericPlugin)]
 struct DiscordActivityAux2 {
+    is_connected: bool,
     client: discord_rich_presence::DiscordIpcClient,
     started_at: time::OffsetDateTime,
     config: Config,
@@ -53,6 +54,7 @@ impl aviutl2::generic::GenericPlugin for DiscordActivityAux2 {
             }
         };
         Ok(Self {
+            is_connected: false,
             client: discord_rich_presence::DiscordIpcClient::new("1478025726056857640"),
             started_at: time::OffsetDateTime::now_utc(),
             config,
@@ -70,6 +72,7 @@ impl aviutl2::generic::GenericPlugin for DiscordActivityAux2 {
     }
 
     fn on_project_load(&mut self, _project: &mut aviutl2::generic::ProjectFile) {
+        tracing::info!("Project loaded, updating Discord activity");
         self.started_at = time::OffsetDateTime::now_utc();
         self.update_activity();
     }
@@ -89,9 +92,39 @@ impl DiscordActivityAux2 {
             tracing::error!("Failed to clear Discord activity: {e}");
         }
     }
+    fn ensure_connected(&mut self) -> aviutl2::AnyResult<()> {
+        if self.is_connected {
+            tracing::info!("Pinging Discord IPC");
+            match self.client.send(serde_json::json!({}), u8::MAX) {
+                Ok(_) => {
+                    tracing::info!("Discord IPC connection is healthy");
+                }
+                Err(
+                    discord_rich_presence::error::Error::NotConnected
+                    | discord_rich_presence::error::Error::WriteError(_),
+                ) => {
+                    tracing::warn!("Discord IPC connection was closed, reconnecting...");
+                    self.is_connected = false;
+                    self.client.connect()?;
+                    self.is_connected = true;
+                }
+                Err(e) => {
+                    tracing::error!("Failed to ping Discord IPC: {e}");
+                    self.is_connected = false;
+                    return Err(e.into());
+                }
+            }
+        } else {
+            tracing::info!("Connecting to Discord IPC");
+            self.client.connect()?;
+            self.is_connected = true;
+        }
+        Ok(())
+    }
+
     fn set_activity(&mut self) -> aviutl2::AnyResult<()> {
+        self.ensure_connected()?;
         tracing::info!("Updating Discord activity");
-        self.client.connect()?;
         self.client.set_activity(
             discord_rich_presence::activity::Activity::new()
                 .state(tr("編集中..."))
@@ -104,8 +137,8 @@ impl DiscordActivityAux2 {
     }
 
     fn clear_activity(&mut self) -> aviutl2::AnyResult<()> {
+        self.ensure_connected()?;
         tracing::info!("Clearing Discord activity");
-        self.client.connect()?;
         self.client.clear_activity()?;
         Ok(())
     }
