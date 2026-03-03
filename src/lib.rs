@@ -153,7 +153,7 @@ impl DiscordActivityAux2 {
 #[aviutl2::generic::menus]
 impl DiscordActivityAux2 {
     #[config(name = "[discord_activity.aux2] 有効/無効を切り替える")]
-    fn toggle_enabled(&mut self, hwnd: aviutl2::Win32WindowHandle) {
+    fn toggle_enabled(&mut self, hwnd: aviutl2::Win32WindowHandle) -> aviutl2::AnyResult<()> {
         self.config.enabled = !self.config.enabled;
         if let Err(e) = self.save_config() {
             tracing::error!("Failed to save config: {e}");
@@ -172,7 +172,10 @@ impl DiscordActivityAux2 {
                     aviutl2::raw_window_handle::RawWindowHandle::Win32(hwnd),
                 )
             })
-            .alert();
+            .alert()
+            .show()?;
+
+        Ok(())
     }
 }
 
