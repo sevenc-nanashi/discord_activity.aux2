@@ -4,12 +4,12 @@ version = "0.1.2"
 edition = "2024"
 
 [lib]
-name = "discord_activity_aux2"
 crate-type = ["cdylib"]
+name = "discord_activity_aux2"
 
 [dependencies]
 aviutl2 = "0.20.2"
-discord-rich-presence = "1.1.0"
+discord-rich-presence = { git = "https://github.com/vionya/discord-rich-presence" }
 native-dialog = "0.9.6"
 process_path = "0.1.4"
 serde = { version = "1.0.228", features = ["derive"] }
