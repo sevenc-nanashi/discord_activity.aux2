@@ -8,10 +8,10 @@ crate-type = ["cdylib"]
 name = "discord_activity_aux2"
 
 [dependencies]
-aviutl2 = "0.20.2"
+aviutl2 = "0.53.0"
 discord-rich-presence = { git = "https://github.com/vionya/discord-rich-presence" }
-native-dialog = "0.9.6"
+native-dialog = "0.9.7"
 process_path = "0.1.4"
-serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.149"
-time = "0.3.47"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+time = "0.3.55"
